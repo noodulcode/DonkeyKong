@@ -4,20 +4,39 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    private SpriteRenderer spriteRenderer;
+    public Sprite[] runSprites; // when mario runs we cycle through these run sprites in the array
+    public Sprite climbSprite; // these two are public because we assign them in the editor
+    private int spriteIndex; // keep track of what sprite we are currently on via index from sprite array
+
     private new Rigidbody2D rigidbody; // new is a new variable, rather than override the built in old existing rigidbody    private Vector2 direction;
     private new Collider2D collider;
+
     private Collider2D[] results;
     private Vector2 direction;
+
     public float moveSpeed = 1f;
     public float jumpStrength = 1f; // how high can mario jump
+
     private bool grounded;
     private bool climbing;
 
     private void Awake() 
     {
+        spriteRenderer = GetComponent<SpriteRenderer>();
         rigidbody = GetComponent<Rigidbody2D>(); // looks for a component that matches the name in Unity
         collider = GetComponent<Collider2D>();
         results = new Collider2D[4]; // sets max number of things to collide/overlap with
+    }
+
+    private void OnEnable() // when Mario is enabled we can invoke a function repeatedly
+    {
+        InvokeRepeating(nameof(AnimateSprite), 1f/12f, 1f/12f); // gets called every 12th of a second, repeats every 12th of a second
+    }
+
+    private void OnDisable() 
+    {
+        CancelInvoke();
     }
 
     private void CheckCollision()
@@ -86,5 +105,24 @@ public class Player : MonoBehaviour
     private void FixedUpdate() 
     {   // take current position then add current direction then multiply
         rigidbody.MovePosition(rigidbody.position + direction * Time.fixedDeltaTime); 
+    }
+
+    private void AnimateSprite()
+    {
+        if (climbing)
+        {
+            spriteRenderer.sprite = climbSprite;
+        }
+        else if (direction.x != 0f)
+        {
+            spriteIndex++; // cycle through array
+
+            if (spriteIndex >= runSprites.Length) // if we get to end of array we want to loop back through
+            {
+                spriteIndex = 0; // if exceeded length of array then set back to 0
+            }
+
+            spriteRenderer.sprite = runSprites[spriteIndex]; // assign whatever sprite is in the array at that index ?
+        }
     }
 }
