@@ -125,4 +125,18 @@ public class Player : MonoBehaviour
             spriteRenderer.sprite = runSprites[spriteIndex]; // assign whatever sprite is in the array at that index ?
         }
     }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Objective"))
+        {
+            enabled = false;
+            FindObjectOfType<GameManager>().LevelCompleted(); // expensive thing to call but only a small game
+        }
+        else if (collision.gameObject.CompareTag("Obstacle"))
+        {
+            enabled = false;
+            FindObjectOfType<GameManager>().LevelFailed();
+        }
+    }
 }
